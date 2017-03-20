@@ -51,29 +51,62 @@
         }
 
         mode = (element.getAttribute("data-ajax-mode") || "").toUpperCase();
-        $(element.getAttribute("data-ajax-update")).each(function (i, update) {
-            var top;
 
-            switch (mode) {
-            case "BEFORE":
-                top = update.firstChild;
-                $("<div />").html(data).contents().each(function () {
-                    update.insertBefore(this, top);
-                });
-                break;
-            case "AFTER":
-                $("<div />").html(data).contents().each(function () {
-                    update.appendChild(this);
-                });
-                break;
-            case "REPLACE-WITH":
-                $(update).replaceWith(data);
-                break;
-            default:
-                $(update).html(data);
-                break;
-            }
-        });
+        if (contentType.indexOf("application/json") !== -1) {
+            $.each(data.partials, function (update, data) {
+                //console.log('My array has at position ' + i + ', this value: ' + update);
+                var htmlObj = $("#" + update);
+
+                if (htmlObj.length > 0) {
+                    switch (mode) {
+                        case "BEFORE":
+                            top = htmlObj.firstChild;
+                            $("<div />").html(data).contents().each(function () {
+                                htmlObj.insertBefore(this, top);
+                            });
+                            break;
+                        case "AFTER":
+                            $("<div />").html(data).contents().each(function () {
+                                htmlObj.appendChild(this);
+                            });
+                            break;
+                        case "REPLACE-WITH":
+                            htmlObj.replaceWith(data);
+                            break;
+                        default:
+                            htmlObj.html(data);
+                            break;
+                    }
+                }
+
+            });
+        }
+        else
+        {
+            $(element.getAttribute("data-ajax-update")).each(function (i, update) {
+                var top;
+
+                switch (mode) {
+                case "BEFORE":
+                    top = update.firstChild;
+                    $("<div />").html(data).contents().each(function () {
+                        update.insertBefore(this, top);
+                    });
+                    break;
+                case "AFTER":
+                    $("<div />").html(data).contents().each(function () {
+                        update.appendChild(this);
+                    });
+                    break;
+                case "REPLACE-WITH":
+                    $(update).replaceWith(data);
+                    break;
+                default:
+                    $(update).html(data);
+                    break;
+                }
+            });
+        }
     }
 
     function asyncRequest(element, options) {
